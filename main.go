@@ -1,0 +1,64 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+type Task struct {
+	ID          int
+	Description string
+	Completed   bool
+}
+
+// Array of type Task named tasks
+var tasks []Task
+var filePath = "tasks.json"
+
+func loadTasks() {
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return // Start empty if no file
+	}
+	json.Unmarshal(data, &tasks)
+}
+
+func saveTasks() {
+	data, _ := json.Marshal(tasks)
+	ioutil.WriteFile(filePath, data, 0644)
+}
+
+func addTask(description string) {
+	id := len(tasks) + 1
+	tasks = append(tasks, Task{ID: id, Description: description, Completed: false})
+	saveTasks()
+}
+
+func listTasks() {
+	for _, t := range tasks {
+		status := "Pending"
+		if t.Completed {
+			status = "Completed"
+		}
+		fmt.Printf("Id: %d, Description: %s, Completed: %s\n", t.ID, t.Description, status)
+	}
+}
+
+// Add more functions like completeTask, deleteTask...
+
+func main() {
+	loadTasks()
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: task-manager [add|list|complete|delete] [args]")
+		return
+	}
+
+	switch os.Args[1] {
+	case "add":
+		addTask(os.Args[2])
+	case "list":
+		listTasks()
+	}
+}
