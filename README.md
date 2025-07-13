@@ -1,13 +1,17 @@
 # Go Task Manager
 
-A simple command-line task management application written in Go that allows you to add and list tasks with persistent storage.
+A command-line task management application written in Go that provides full CRUD operations for tasks with persistent storage using JSON.
 
 ## Features
 
 - Add new tasks with descriptions
 - List all tasks with their status (Pending/Completed)
+- Get details of a specific task by ID
+- Mark tasks as completed
+- Delete tasks
 - Persistent storage using JSON file
-- Simple command-line interface
+- Efficient O(1) task lookups using map-based storage
+- Auto-incrementing task IDs
 
 ## Installation
 
@@ -32,6 +36,9 @@ go build -o task-manager main.go
 
 - `add [description]` - Add a new task with the given description
 - `list` - Display all tasks with their current status
+- `get_task [id]` - Get details of a specific task by ID
+- `complete [id]` - Mark a task as completed by ID
+- `delete [id]` - Delete a task by ID
 
 ### Examples
 
@@ -41,11 +48,20 @@ go build -o task-manager main.go
 
 # List all tasks
 ./task-manager list
+
+# Get details of task with ID 2
+./task-manager get_task 2
+
+# Mark task 2 as completed
+./task-manager complete 2
+
+# Delete task 3
+./task-manager delete 3
 ```
 
 ## Data Storage
 
-Tasks are stored in `tasks.json` file in the same directory as the executable. The file is automatically created when you add your first task.
+Tasks are stored in `tasks.json` file in the same directory as the executable. The file is automatically created when you add your first task. Tasks are internally managed using a map for efficient O(1) lookups but persisted as a JSON array.
 
 ## Project Structure
 
@@ -59,11 +75,14 @@ Tasks are stored in `tasks.json` file in the same directory as the executable. T
 Each task contains:
 - `ID` - Unique identifier (auto-incremented)
 - `Description` - Task description
-- `Completed` - Boolean status (currently always false in this version)
+- `Completed` - Boolean status indicating if the task is completed
 
-## Note
+## Implementation Details
 
-This is a basic implementation with add and list functionality. Additional features like completing and deleting tasks are mentioned in the code comments but not yet implemented.
+- Uses a map (`map[int]Task`) for efficient task storage and retrieval
+- Automatic ID management with `nextID` tracking
+- Error handling for invalid task IDs
+- JSON marshaling/unmarshaling for persistence
 
 ## Requirements
 
