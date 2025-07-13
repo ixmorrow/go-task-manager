@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"strconv"
 )
 
 type Task struct {
@@ -36,6 +38,27 @@ func addTask(description string) {
 	saveTasks()
 }
 
+func getTask(task_id string) {
+	num, err := strconv.Atoi((task_id))
+	if err != nil {
+		log.Fatalf("Error converting string to int: %v", err)
+	}
+	for _, t := range tasks {
+		if t.ID == num {
+			fmt.Printf("ID: %d, Description: %s, Completed: %s\n", t.ID, t.Description, _getStatus(t))
+		}
+	}
+}
+
+// Internal use only
+func _getStatus(t Task) string {
+	status := "Pending"
+	if t.Completed {
+		status = "Completed"
+	}
+	return status
+}
+
 func listTasks() {
 	for _, t := range tasks {
 		status := "Pending"
@@ -60,5 +83,7 @@ func main() {
 		addTask(os.Args[2])
 	case "list":
 		listTasks()
+	case "get_task":
+		getTask(os.Args[2])
 	}
 }
