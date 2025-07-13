@@ -16,7 +16,8 @@ type Task struct {
 }
 
 // Array of type Task named tasks
-var tasks []Task
+var tasks = make(map[int]Task) // Map for O(1) lookups by ID
+var nextID = 1                 // Track next available ID (load/max from file if needed)
 var filePath = "tasks.json"
 
 func loadTasks() {
@@ -24,30 +25,42 @@ func loadTasks() {
 	if err != nil {
 		return // Start empty if no file
 	}
+	var loadedTasks []Task // Temporarily load into slice from JSON
+	if err := json.Unmarshal(data, &loadedTasks); err != nil {
+		return
+	}
+	for _, t := range loadedTasks {
+		tasks[t.ID] = t
+		if t.ID >= nextID {
+			nextID = t.ID + 1
+		}
+	}
 	json.Unmarshal(data, &tasks)
 }
 
 func saveTasks() {
-	data, _ := json.Marshal(tasks)
+	var taskList []Task // Convert map to slice for JSON persistence
+	for _, t := range tasks {
+		taskList = append(taskList, t)
+	}
+	data, _ := json.Marshal(taskList)
 	ioutil.WriteFile(filePath, data, 0644)
 }
 
 func addTask(description string) {
 	id := len(tasks) + 1
-	tasks = append(tasks, Task{ID: id, Description: description, Completed: false})
+	tasks[nextID] = Task{ID: id, Description: description, Completed: false}
+	nextID++
 	saveTasks()
 }
 
-func getTask(task_id string) {
-	num, err := strconv.Atoi((task_id))
+func getTask(taskId string) {
+	id, err := strconv.Atoi(taskId)
 	if err != nil {
 		log.Fatalf("Error converting string to int: %v", err)
 	}
-	for _, t := range tasks {
-		if t.ID == num {
-			fmt.Printf("ID: %d, Description: %s, Completed: %s\n", t.ID, t.Description, _getStatus(t))
-		}
-	}
+	t := tasks[id]
+	fmt.Printf("ID: %d, Description: %s, Completed: %s\n", t.ID, t.Description, _getStatus(t))
 }
 
 // Internal use only
@@ -57,6 +70,37 @@ func _getStatus(t Task) string {
 		status = "Completed"
 	}
 	return status
+}
+
+func completeTask(taskId string) {
+	id, err := strconv.Atoi(taskId)
+	if err != nil {
+		log.Fatalf("Error converting string to int: %v", err)
+		return
+	}
+	if t, ok := tasks[id]; ok {
+		t.Completed = true
+		tasks[id] = t // Maps are reference types, but struct update requires re-assignment
+		saveTasks()
+		fmt.Println("Task", id, "marked as completed.")
+	} else {
+		fmt.Println("Task not found: ", id)
+	}
+}
+
+func deleteTask(taskId string) {
+	id, err := strconv.Atoi(taskId)
+	if err != nil {
+		log.Fatalf("Error converting string to in: %v", err)
+		return
+	}
+	if _, ok := tasks[id]; ok {
+		delete(tasks, id)
+		saveTasks()
+		fmt.Println("Task", id, "deleted.")
+	} else {
+		fmt.Println("Task not found.")
+	}
 }
 
 func listTasks() {
@@ -85,5 +129,9 @@ func main() {
 		listTasks()
 	case "get_task":
 		getTask(os.Args[2])
+	case "complete":
+		completeTask(os.Args[2])
+	case "delete":
+		deleteTask(os.Args[2])
 	}
 }

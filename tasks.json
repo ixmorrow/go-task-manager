@@ -1,1 +1,1 @@
-[{"ID":1,"Description":"kubernetes","Completed":false},{"ID":2,"Description":"Train ML Model on GPU cluster","Completed":false}]
+[{"ID":2,"Description":"Train ML Model on GPU cluster","Completed":false},{"ID":3,"Description":"Distributed process scheduled with Slurm","Completed":false}]
