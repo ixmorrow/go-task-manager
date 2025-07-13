@@ -124,14 +124,30 @@ func main() {
 
 	switch os.Args[1] {
 	case "add":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: add <description>")
+			return
+		}
 		addTask(os.Args[2])
 	case "list":
 		listTasks()
 	case "get_task":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: get_task <id>")
+			return
+		}
 		getTask(os.Args[2])
 	case "complete":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: complete <id>")
+			return
+		}
 		completeTask(os.Args[2])
 	case "delete":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: delete <id>")
+			return
+		}
 		deleteTask(os.Args[2])
 	}
 }
