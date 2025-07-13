@@ -113,8 +113,6 @@ func listTasks() {
 	}
 }
 
-// Add more functions like completeTask, deleteTask...
-
 func main() {
 	loadTasks()
 	if len(os.Args) < 2 {
